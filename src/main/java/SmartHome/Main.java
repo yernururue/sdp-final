@@ -7,6 +7,7 @@ import main.java.SmartHome.facade.SmartHomeFacade;
 import main.java.SmartHome.factory.*;
 import main.java.SmartHome.sensor.*;
 import main.java.SmartHome.strategy.EcoMode;
+import main.java.SmartHome.strategy.HomeDevices;
 
 import java.util.Scanner;
 
@@ -18,7 +19,8 @@ public class Main {
         WifiThermostatAdapter thermostat = (WifiThermostatAdapter) new ThermostatFactory().getDevice();
         BluetoothLockAdapter  lock       = (BluetoothLockAdapter)  new LockFactory().getDevice();
 
-        AutomationRule rule          = new AutomationRule(new EcoMode());
+        AutomationRule rule          = new AutomationRule(new EcoMode(),
+                                                          new HomeDevices(light, thermostat, lock));
         MotionSensor entranceSensor  = new MotionSensor("Front Door");
         TemperatureSensor tempSensor = new TemperatureSensor("Living Room");
         entranceSensor.subscribe(rule);
@@ -30,18 +32,15 @@ public class Main {
         boolean running = true;
 
         while (running) {
-            System.out.println("\n╔══════════════════════════════╗");
-            System.out.println("║      Smart Home Menu          ║");
-            System.out.println("╠══════════════════════════════╣");
-            System.out.println("║  1. Leave Home (Away Mode)    ║");
-            System.out.println("║  2. Good Night (Night Mode)   ║");
-            System.out.println("║  3. Status                    ║");
-            System.out.println("║  4. Simulate Motion Sensor    ║");
-            System.out.println("║  5. Simulate Temperature      ║");
-            System.out.println("║  6. Run Diagnostics (Visitor) ║");
-            System.out.println("║  7. Energy Usage (Visitor)    ║");
-            System.out.println("║  0. Exit                      ║");
-            System.out.println("╚══════════════════════════════╝");
+            System.out.println("\n--- Smart Home Menu ---");
+            System.out.println("1. Leave home (Away mode)");
+            System.out.println("2. Good night (Night mode)");
+            System.out.println("3. Status");
+            System.out.println("4. Simulate motion sensor");
+            System.out.println("5. Simulate temperature");
+            System.out.println("6. Run diagnostics");
+            System.out.println("7. Energy usage");
+            System.out.println("0. Exit");
             System.out.print("Choose: ");
 
             String input = scanner.nextLine().trim();
@@ -63,7 +62,7 @@ public class Main {
                 case "6" -> home.runDiagnostics();
                 case "7" -> home.calculateEnergy();
                 case "0" -> {
-                    System.out.println("Goodbye! 👋");
+                    System.out.println("Exiting.");
                     running = false;
                 }
                 default -> System.out.println("Invalid option. Try again.");
