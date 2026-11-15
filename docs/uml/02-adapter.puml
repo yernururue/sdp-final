@@ -1,0 +1,57 @@
+@startuml adapter
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam ArrowColor #444444
+skinparam ClassBorderColor #444444
+skinparam ClassBackgroundColor #FDFDFD
+skinparam ClassHeaderBackgroundColor #EEEEEE
+skinparam PackageBorderColor #888888
+skinparam NoteBackgroundColor #FFF8DC
+skinparam NoteBorderColor #B8A86A
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBackgroundColor #EEEEEE
+skinparam ParticipantBorderColor #444444
+hide empty members
+title Adapter
+
+interface SmartDevice <<Target>> {
+  +turnOn()
+  +turnOff()
+  +getStatus() : String
+  +getName() : String
+}
+
+class ZigbeeLightAdapter <<Adapter>>
+class WifiThermostatAdapter <<Adapter>>
+class BluetoothLockAdapter <<Adapter>>
+
+class ZigbeeLight <<Adaptee>> {
+  +switchOn()
+  +switchOff()
+  +queryState() : String
+}
+class WifiThermostat <<Adaptee>> {
+  +sendSetTemp(c : double)
+  +readTemp() : double
+}
+class BluetoothLock <<Adaptee>> {
+  +sendLockSignal()
+  +sendUnlockSignal()
+  +getLockState() : boolean
+}
+
+SmartDevice <|.. ZigbeeLightAdapter
+SmartDevice <|.. WifiThermostatAdapter
+SmartDevice <|.. BluetoothLockAdapter
+ZigbeeLightAdapter --> ZigbeeLight
+WifiThermostatAdapter --> WifiThermostat
+BluetoothLockAdapter --> BluetoothLock
+
+note bottom of ZigbeeLightAdapter
+  turnOn() calls zigbeeLight.switchOn()
+end note
+@enduml

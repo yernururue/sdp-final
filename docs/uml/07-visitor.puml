@@ -1,0 +1,49 @@
+@startuml visitor
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam ArrowColor #444444
+skinparam ClassBorderColor #444444
+skinparam ClassBackgroundColor #FDFDFD
+skinparam ClassHeaderBackgroundColor #EEEEEE
+skinparam PackageBorderColor #888888
+skinparam NoteBackgroundColor #FFF8DC
+skinparam NoteBorderColor #B8A86A
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBackgroundColor #EEEEEE
+skinparam ParticipantBorderColor #444444
+hide empty members
+title Visitor
+
+interface DeviceVisitor <<Visitor>> {
+  +visit(l : ZigbeeLightAdapter)
+  +visit(t : WifiThermostatAdapter)
+  +visit(l : BluetoothLockAdapter)
+}
+class DiagnosticsVisitor
+class EnergyConsumptionVisitor {
+  -totalWatts : double
+  +getTotalWatts() : double
+}
+
+interface SmartDevice <<Element>> {
+  +accept(v : DeviceVisitor)
+}
+class ZigbeeLightAdapter
+class WifiThermostatAdapter
+class BluetoothLockAdapter
+
+DeviceVisitor <|.. DiagnosticsVisitor
+DeviceVisitor <|.. EnergyConsumptionVisitor
+SmartDevice <|.. ZigbeeLightAdapter
+SmartDevice <|.. WifiThermostatAdapter
+SmartDevice <|.. BluetoothLockAdapter
+SmartDevice ..> DeviceVisitor
+
+note bottom of ZigbeeLightAdapter
+  accept(v) { v.visit(this); }
+end note
+@enduml

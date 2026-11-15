@@ -1,0 +1,51 @@
+@startuml factory-method
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam ArrowColor #444444
+skinparam ClassBorderColor #444444
+skinparam ClassBackgroundColor #FDFDFD
+skinparam ClassHeaderBackgroundColor #EEEEEE
+skinparam PackageBorderColor #888888
+skinparam NoteBackgroundColor #FFF8DC
+skinparam NoteBorderColor #B8A86A
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBackgroundColor #EEEEEE
+skinparam ParticipantBorderColor #444444
+hide empty members
+title Factory Method
+
+abstract class DeviceFactory <<Creator>> {
+  +{abstract} createDevice() : SmartDevice
+  +getDevice() : SmartDevice
+}
+class LightFactory
+class ThermostatFactory
+class LockFactory
+
+interface SmartDevice <<Product>>
+class ZigbeeLightAdapter
+class WifiThermostatAdapter
+class BluetoothLockAdapter
+
+DeviceFactory <|-- LightFactory
+DeviceFactory <|-- ThermostatFactory
+DeviceFactory <|-- LockFactory
+DeviceFactory ..> SmartDevice
+
+SmartDevice <|.. ZigbeeLightAdapter
+SmartDevice <|.. WifiThermostatAdapter
+SmartDevice <|.. BluetoothLockAdapter
+
+LightFactory ..> ZigbeeLightAdapter : creates
+ThermostatFactory ..> WifiThermostatAdapter : creates
+LockFactory ..> BluetoothLockAdapter : creates
+
+note right of DeviceFactory
+  getDevice() calls createDevice()
+  and logs the new device
+end note
+@enduml

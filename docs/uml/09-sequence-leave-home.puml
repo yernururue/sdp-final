@@ -1,0 +1,36 @@
+@startuml sequence-leave-home
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam ArrowColor #444444
+skinparam ClassBorderColor #444444
+skinparam ClassBackgroundColor #FDFDFD
+skinparam ClassHeaderBackgroundColor #EEEEEE
+skinparam PackageBorderColor #888888
+skinparam NoteBackgroundColor #FFF8DC
+skinparam NoteBorderColor #B8A86A
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBackgroundColor #EEEEEE
+skinparam ParticipantBorderColor #444444
+hide empty members
+title Leave home through the facade
+
+actor User
+participant Main
+participant "home\n:SmartHomeFacade" as F
+participant "rule\n:AutomationRule" as R
+participant "light\n:ZigbeeLightAdapter" as Li
+participant "thermostat\n:WifiThermostatAdapter" as T
+participant "lock\n:BluetoothLockAdapter" as L
+
+User -> Main : option 1
+Main -> F : leaveHome()
+F -> R : setMode(new AwayMode())
+F -> Li : turnOff()
+F -> T : setTemperature(18.0)
+F -> L : lock()
+F --> Main
+@enduml

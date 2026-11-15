@@ -1,0 +1,62 @@
+@startuml strategy
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam ArrowColor #444444
+skinparam ClassBorderColor #444444
+skinparam ClassBackgroundColor #FDFDFD
+skinparam ClassHeaderBackgroundColor #EEEEEE
+skinparam PackageBorderColor #888888
+skinparam NoteBackgroundColor #FFF8DC
+skinparam NoteBorderColor #B8A86A
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBackgroundColor #EEEEEE
+skinparam ParticipantBorderColor #444444
+hide empty members
+title Strategy
+
+class AutomationRule <<Context>> {
+  -currentMode : HomeMode
+  -devices : HomeDevices
+  +setMode(m : HomeMode)
+  +getCurrentMode() : HomeMode
+  +onEvent(e : SensorEvent)
+}
+interface HomeMode <<Strategy>> {
+  +handleEvent(e : SensorEvent, d : HomeDevices)
+  +getModeName() : String
+}
+class EcoMode {
+  motion: light on
+  temp out of 19-24: set 21
+}
+class AwayMode {
+  motion: lock door, light on
+  temp below 10: set 12
+}
+class NightMode {
+  motion: night light on
+  temp below 18: set 20
+  temp above 24: set 22
+}
+class HomeDevices <<record>> {
+  light : SmartDevice
+  thermostat : WifiThermostatAdapter
+  lock : BluetoothLockAdapter
+}
+
+AutomationRule o--> HomeMode
+AutomationRule --> HomeDevices
+HomeMode <|.. EcoMode
+HomeMode <|.. AwayMode
+HomeMode <|.. NightMode
+HomeMode ..> HomeDevices : uses
+
+note bottom of AutomationRule
+  onEvent(e) calls
+  currentMode.handleEvent(e, devices)
+end note
+@enduml

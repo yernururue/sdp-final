@@ -1,0 +1,58 @@
+@startuml observer
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam ArrowColor #444444
+skinparam ClassBorderColor #444444
+skinparam ClassBackgroundColor #FDFDFD
+skinparam ClassHeaderBackgroundColor #EEEEEE
+skinparam PackageBorderColor #888888
+skinparam NoteBackgroundColor #FFF8DC
+skinparam NoteBorderColor #B8A86A
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBackgroundColor #EEEEEE
+skinparam ParticipantBorderColor #444444
+hide empty members
+title Observer
+
+abstract class Sensor <<Subject>> {
+  -observers : List<SensorObserver>
+  +subscribe(o : SensorObserver)
+  +unsubscribe(o : SensorObserver)
+  #notifyObservers(e : SensorEvent)
+}
+class MotionSensor {
+  -location : String
+  +detectMotion()
+}
+class TemperatureSensor {
+  -location : String
+  +measure(c : double)
+}
+interface SensorObserver <<Observer>> {
+  +onEvent(e : SensorEvent)
+}
+class AutomationRule <<ConcreteObserver>> {
+  +onEvent(e : SensorEvent)
+}
+class SensorEvent {
+  -type : Type
+  -source : String
+  -value : double
+}
+enum Type {
+  MOTION
+  TEMPERATURE
+  DOOR
+}
+
+Sensor <|-- MotionSensor
+Sensor <|-- TemperatureSensor
+Sensor o--> "*" SensorObserver : observers
+SensorObserver <|.. AutomationRule
+Sensor ..> SensorEvent : creates
+SensorEvent +-- Type
+@enduml

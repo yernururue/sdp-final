@@ -1,0 +1,39 @@
+@startuml sequence-motion
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam ArrowColor #444444
+skinparam ClassBorderColor #444444
+skinparam ClassBackgroundColor #FDFDFD
+skinparam ClassHeaderBackgroundColor #EEEEEE
+skinparam PackageBorderColor #888888
+skinparam NoteBackgroundColor #FFF8DC
+skinparam NoteBorderColor #B8A86A
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBackgroundColor #EEEEEE
+skinparam ParticipantBorderColor #444444
+hide empty members
+title Motion detected while in Away mode
+
+actor User
+participant Main
+participant "entranceSensor\n:MotionSensor" as S
+participant "rule\n:AutomationRule" as R
+participant "mode\n:AwayMode" as M
+participant "lock\n:BluetoothLockAdapter" as L
+participant "light\n:ZigbeeLightAdapter" as Li
+
+User -> Main : option 4
+Main -> S : detectMotion()
+S -> S : notifyObservers(event)
+S -> R : onEvent(event)
+R -> M : handleEvent(event, devices)
+M -> L : lock()
+M -> Li : turnOn()
+M --> R
+R --> S
+S --> Main
+@enduml

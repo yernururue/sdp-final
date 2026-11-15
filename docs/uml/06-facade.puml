@@ -1,0 +1,59 @@
+@startuml facade
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam ArrowColor #444444
+skinparam ClassBorderColor #444444
+skinparam ClassBackgroundColor #FDFDFD
+skinparam ClassHeaderBackgroundColor #EEEEEE
+skinparam PackageBorderColor #888888
+skinparam NoteBackgroundColor #FFF8DC
+skinparam NoteBorderColor #B8A86A
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBackgroundColor #EEEEEE
+skinparam ParticipantBorderColor #444444
+hide empty members
+title Facade
+
+class Main <<Client>>
+
+class SmartHomeFacade <<Facade>> {
+  +leaveHome()
+  +goodNight()
+  +status()
+  +runDiagnostics()
+  +calculateEnergy()
+}
+
+package "subsystem" {
+  interface SmartDevice
+  class WifiThermostatAdapter {
+    +setTemperature(c : double)
+  }
+  class BluetoothLockAdapter {
+    +lock()
+  }
+  class AutomationRule {
+    +setMode(m : HomeMode)
+  }
+  interface DeviceVisitor
+}
+
+Main --> SmartHomeFacade
+SmartHomeFacade --> SmartDevice : light
+SmartHomeFacade --> WifiThermostatAdapter : thermostat
+SmartHomeFacade --> BluetoothLockAdapter : lock
+SmartHomeFacade --> AutomationRule
+SmartHomeFacade ..> DeviceVisitor
+
+note right of SmartHomeFacade
+  leaveHome():
+    rule.setMode(new AwayMode())
+    light.turnOff()
+    thermostat.setTemperature(18)
+    lock.lock()
+end note
+@enduml

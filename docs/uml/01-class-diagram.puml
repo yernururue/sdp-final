@@ -1,0 +1,177 @@
+@startuml class-diagram
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam ArrowColor #444444
+skinparam ClassBorderColor #444444
+skinparam ClassBackgroundColor #FDFDFD
+skinparam ClassHeaderBackgroundColor #EEEEEE
+skinparam PackageBorderColor #888888
+skinparam NoteBackgroundColor #FFF8DC
+skinparam NoteBorderColor #B8A86A
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBackgroundColor #EEEEEE
+skinparam ParticipantBorderColor #444444
+hide empty members
+title Smart Home Automation - class diagram
+left to right direction
+
+package device {
+  interface SmartDevice {
+    +turnOn()
+    +turnOff()
+    +getStatus() : String
+    +getName() : String
+    +accept(v : DeviceVisitor)
+  }
+}
+
+package vendor {
+  class ZigbeeLight {
+    +switchOn()
+    +switchOff()
+    +queryState() : String
+  }
+  class WifiThermostat {
+    +sendSetTemp(c : double)
+    +readTemp() : double
+  }
+  class BluetoothLock {
+    +sendLockSignal()
+    +sendUnlockSignal()
+    +getLockState() : boolean
+  }
+}
+
+package adapter {
+  class ZigbeeLightAdapter
+  class WifiThermostatAdapter {
+    +setTemperature(c : double)
+    +getTemperature() : double
+  }
+  class BluetoothLockAdapter {
+    +lock()
+    +unlock()
+  }
+}
+
+package factory {
+  abstract class DeviceFactory {
+    +{abstract} createDevice() : SmartDevice
+    +getDevice() : SmartDevice
+  }
+  class LightFactory
+  class ThermostatFactory
+  class LockFactory
+}
+
+package sensor {
+  abstract class Sensor {
+    -observers : List<SensorObserver>
+    +subscribe(o : SensorObserver)
+    +unsubscribe(o : SensorObserver)
+    #notifyObservers(e : SensorEvent)
+  }
+  class MotionSensor {
+    +detectMotion()
+  }
+  class TemperatureSensor {
+    +measure(c : double)
+  }
+  interface SensorObserver {
+    +onEvent(e : SensorEvent)
+  }
+  class SensorEvent {
+    -type : Type
+    -source : String
+    -value : double
+  }
+  class AutomationRule {
+    -currentMode : HomeMode
+    -devices : HomeDevices
+    +setMode(m : HomeMode)
+    +onEvent(e : SensorEvent)
+  }
+}
+
+package strategy {
+  interface HomeMode {
+    +handleEvent(e : SensorEvent, d : HomeDevices)
+    +getModeName() : String
+  }
+  class EcoMode
+  class AwayMode
+  class NightMode
+  class HomeDevices <<record>> {
+    light : SmartDevice
+    thermostat : WifiThermostatAdapter
+    lock : BluetoothLockAdapter
+  }
+}
+
+package visitor {
+  interface DeviceVisitor {
+    +visit(l : ZigbeeLightAdapter)
+    +visit(t : WifiThermostatAdapter)
+    +visit(l : BluetoothLockAdapter)
+  }
+  class DiagnosticsVisitor
+  class EnergyConsumptionVisitor {
+    -totalWatts : double
+    +getTotalWatts() : double
+  }
+}
+
+package facade {
+  class SmartHomeFacade {
+    +leaveHome()
+    +goodNight()
+    +status()
+    +runDiagnostics()
+    +calculateEnergy()
+  }
+}
+
+class Main
+
+SmartDevice <|.. ZigbeeLightAdapter
+SmartDevice <|.. WifiThermostatAdapter
+SmartDevice <|.. BluetoothLockAdapter
+ZigbeeLightAdapter --> ZigbeeLight
+WifiThermostatAdapter --> WifiThermostat
+BluetoothLockAdapter --> BluetoothLock
+
+DeviceFactory <|-- LightFactory
+DeviceFactory <|-- ThermostatFactory
+DeviceFactory <|-- LockFactory
+LightFactory ..> ZigbeeLightAdapter : creates
+ThermostatFactory ..> WifiThermostatAdapter : creates
+LockFactory ..> BluetoothLockAdapter : creates
+
+Sensor <|-- MotionSensor
+Sensor <|-- TemperatureSensor
+Sensor o--> "*" SensorObserver
+SensorObserver <|.. AutomationRule
+Sensor ..> SensorEvent
+
+AutomationRule --> HomeMode
+AutomationRule --> HomeDevices
+HomeMode <|.. EcoMode
+HomeMode <|.. AwayMode
+HomeMode <|.. NightMode
+
+DeviceVisitor <|.. DiagnosticsVisitor
+DeviceVisitor <|.. EnergyConsumptionVisitor
+SmartDevice ..> DeviceVisitor : accept
+
+SmartHomeFacade --> SmartDevice
+SmartHomeFacade --> AutomationRule
+SmartHomeFacade ..> DeviceVisitor
+
+Main ..> DeviceFactory
+Main ..> Sensor
+Main --> SmartHomeFacade
+@enduml
